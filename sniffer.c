@@ -50,8 +50,28 @@ void printMessage(EthHeader *ethH, IPHeader *ipH, UDPHeader *udpH, Block *block)
 {
 	printf("________________________________\n");
 	
-	printf("src MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", ethH->srcMac[0],ethH->srcMac[1],ethH->srcMac[2],ethH->srcMac[3],ethH->srcMac[4],ethH->srcMac[5]);
-	printf("dest MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", ethH->destMac[0],ethH->destMac[1],ethH->destMac[2],ethH->destMac[3],ethH->destMac[4],ethH->destMac[5]);
+	printf("src MAC: ");
+	for (int i = 0; i < 6; ++i)
+	{
+		printf("%02x", ethH->srcMac[i]);
+		if (i != 5)
+		{
+			printf(":");
+		}
+	}
+	printf("\n");
+
+	printf("dest MAC: ");
+	for (int i = 0; i < 6; ++i)
+	{
+		printf("%02x", ethH->destMac[i]);
+		if (i != 5)
+		{
+			printf(":");
+		}
+	}
+	printf("\n");
+
 	printf("src IP: %u.%u.%u.%u\n", ipH->srcIP[0],ipH->srcIP[1],ipH->srcIP[2],ipH->srcIP[3]);
 	printf("dest IP: %u.%u.%u.%u\n", ipH->destIP[0],ipH->destIP[1],ipH->destIP[2],ipH->destIP[3]);
 	printf("protocol: %u\n", ipH->protocol);
@@ -63,18 +83,32 @@ void printMessage(EthHeader *ethH, IPHeader *ipH, UDPHeader *udpH, Block *block)
 	if (block->type == 2)
 	{
 		printf("Message type: %u\n", block->type);
-		printf("studentID: %c%c%c%c%c%c%c%c\n", block->studentID[0],block->studentID[1],block->studentID[2],block->studentID[3],block->studentID[4],block->studentID[5],block->studentID[6],block->studentID[7]);
+
+		printf("studentID: ");
+		for (int i = 0; i < 8; ++i)
+		{
+			printf("%c", block->studentID[i]);
+		}
+		printf("\n");
+
 	}else if (block->type == 1)
 	{
 		printf("message type: %u\n", block->type);
-		printf("studentID: %c%c%c%c%c%c%c%c\n", block->studentID[0],block->studentID[1],block->studentID[2],block->studentID[3],block->studentID[4],block->studentID[5],block->studentID[6],block->studentID[7]);
-		
+
+		printf("studentID: ");
+		for (int i = 0; i < 8; ++i)
+		{
+			printf("%c", block->studentID[i]);
+		}
+		printf("\n");
+
 		//the length receives is formated based on each 
 		//digity (ex: 79, length[0] = 7 and length[1] = 9)
 		int size = block->length[0]*10 + block->length[1];
 		printf("length: %u\n", size);
 
 		//getting each byte after the length using the pointer
+		printf("name: ");
 		for (char c = 0; c < size; ++c)
 		{
 			printf("%c", *(block->length + 2 + c));
