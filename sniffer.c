@@ -106,7 +106,8 @@ void printMessage(EthHeader *ethH, IPHeader *ipH, UDPHeader *udpH, Block *block)
 		// name length
 		uint16_t size = 0;
 		if(block->length[0] > 0){
-			size = block->length[0] + 255;
+			size = block->length[0];
+			size = size << 8;
 		}
 		size += block->length[1];
 		printf("length: %u\n", size);
