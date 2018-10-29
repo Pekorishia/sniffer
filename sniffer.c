@@ -3,43 +3,43 @@
 #include <time.h>
 
 #include <arpa/inet.h>			//ntohs	
-#include <stdint.h>			//uint8_t, uint16_t and uint32_t
+#include <stdint.h>				//uint8_t, uint16_t and uint32_t
 #include <sys/socket.h>			//socket functions
 
 typedef struct 
 {
-	uint8_t type;			//block type
+	uint8_t type;				//block type
 	uint8_t studentID[8];		//student ID
-	uint8_t length[2];		//name length
+	uint8_t length[2];			//name length
 }Block;
 
 typedef struct
 {
-	uint16_t srcPort;		//source port
-	uint16_t destPort;		//destination port
-	uint16_t length;		//length of the payload
+	uint16_t srcPort;			//source port
+	uint16_t destPort;			//destination port
+	uint16_t length;			//length of the payload
 	uint16_t checksum;			
 }UDPHeader;
 
 typedef struct 
 {
 	uint8_t versionAndHLenght;	//version and header length
-	uint8_t tos;			//type of service
+	uint8_t tos;				//type of service
 	uint16_t totalLenght;		//total IP packet length
-	uint16_t id;			//identification
+	uint16_t id;				//identification
 	uint16_t fragOffset;		//frament offset
-	uint8_t ttl;			//time to live
-	uint8_t protocol;		//payload protocol
-	uint16_t hChecksum;		//header checksum
-	uint8_t srcIP[4];		//source IP
-	uint8_t destIP[4];		//destination IP
+	uint8_t ttl;				//time to live
+	uint8_t protocol;			//payload protocol
+	uint16_t hChecksum;			//header checksum
+	uint8_t srcIP[4];			//source IP
+	uint8_t destIP[4];			//destination IP
 }IPHeader;
 
 typedef struct 
 {
-	uint8_t destMac[6];		//destination MAC address
-	uint8_t srcMac[6];		//source MAC address
-	uint16_t type;			//payload protocol type
+	uint8_t destMac[6];			//destination MAC address
+	uint8_t srcMac[6];			//source MAC address
+	uint16_t type;				//payload protocol type
 }EthHeader;
 
 
@@ -102,14 +102,18 @@ void printMessage(EthHeader *ethH, IPHeader *ipH, UDPHeader *udpH, Block *block)
 		}
 		printf("\n");
 
-		//the length receives is formated based on each 
-		//digity (ex: 79, length[0] = 7 and length[1] = 9)
-		int size = block->length[0]*10 + block->length[1];
+
+		// name length
+		uint16_t size = 0;
+		if(block->length[0] > 0){
+			size = block->length[0] + 255;
+		}
+		size += block->length[1];
 		printf("length: %u\n", size);
 
 		//getting each byte after the length using the pointer
 		printf("name: ");
-		for (char c = 0; c < size; ++c)
+		for (uint16_t c = 0; c < size; ++c)
 		{
 			printf("%c", *(block->length + 2 + c));
 		}
@@ -157,7 +161,7 @@ int main()
 	struct sockaddr sockAddr;
 
 	//creating a buffer that will receive the socket data
-	unsigned char *buffer = (unsigned char *) malloc (65534); //max uint value to hold all possible data
+	unsigned char *buffer = (unsigned char *) malloc (65535 + 39); //maxVlue(2 bytes for the name) + sizeof(all headers)
 
 	/*
 	 *creates a raw socket that will sniff through all messages
@@ -178,7 +182,7 @@ int main()
 		int sockAddrSize = sizeof(sockAddr);
 
 		//receives the data from the socket and stores it into the buffer
-		int dataSize = recvfrom(rawSocket, buffer, 65534, 0, &sockAddr, &sockAddrSize);
+		int dataSize = recvfrom(rawSocket, buffer, (65535 + 39), 0, &sockAddr, &sockAddrSize);
 
 		if(dataSize < 0)
 		{
